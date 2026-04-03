@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="ONGES.Donate.Api/ONGES.Donate.Api.csproj" />
+  <Project Path="ONGES.Donate.Application/ONGES.Donate.Application.csproj" />
+  <Project Path="ONGES.Donate.Consumer/ONGES.Donate.Consumer.csproj" />
+  <Project Path="ONGES.Donate.Domain/ONGES.Donate.Domain.csproj" />
+  <Project Path="ONGES.Donate.Infrastructure/ONGES.Donate.Infrastructure.csproj" />
+  <Project Path="ONGES.Donate.Test/ONGES.Donate.Test.csproj" />
+</Solution>
