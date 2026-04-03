@@ -1,0 +1,67 @@
+services:
+  onges-donate-api:
+    build:
+      context: .
+      dockerfile: ONGES.Donate.Api/Dockerfile
+    container_name: onges-donate-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=db-onges-donate-dev;User Id=sa;Password=SenhaForte123!;TrustServerCertificate=True;
+      CampaignApi__BaseUrl: https://host.docker.internal:7040
+      ServiceBus__ConnectionString: Endpoint=sb://host.docker.internal/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=local-dev-only
+      ServiceBus__DonationsTopic: donates-topic
+      ServiceBus__DonationsSubscription: donate-api-sub
+      ServiceBus__CampaignUpdatesEntity: campaign-donations
+    ports:
+      - "8080:80"
+    networks:
+      - onges-donate-network
+
+  onges-donate-consumer:
+    build:
+      context: .
+      dockerfile: ONGES.Donate.Consumer/Dockerfile
+    container_name: onges-donate-consumer
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=db-onges-donate-dev;User Id=sa;Password=SenhaForte123!;TrustServerCertificate=True;
+      CampaignApi__BaseUrl: https://host.docker.internal:7040
+      ServiceBus__ConnectionString: Endpoint=sb://host.docker.internal/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=local-dev-only
+      ServiceBus__DonationsTopic: donates-topic
+      ServiceBus__DonationsSubscription: donate-api-sub
+      ServiceBus__CampaignUpdatesEntity: campaign-donations
+    networks:
+      - onges-donate-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: onges-donate-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: SenhaForte123!
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "SenhaForte123!", "-C", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - onges-donate-network
+
+networks:
+  onges-donate-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
