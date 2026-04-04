@@ -9,9 +9,27 @@ namespace ONGES.Donate.Application.Services;
 
 public sealed class DonationService(
     ICampaignValidationGateway campaignValidationGateway,
+    IDonationRepository donationRepository,
     IInternalDonationMessagePublisher internalDonationMessagePublisher,
     IValidator<CreateDonationRequest> validator) : IDonationService
 {
+    public async Task<Result<IEnumerable<DonationResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        var donations = await donationRepository.GetAllAsync(cancellationToken);
+
+        var response = donations.Select(donation => new DonationResponse(
+            donation.Id,
+            donation.CampaignId,
+            donation.DonorUserId,
+            donation.Amount,
+            donation.Status.ToString(),
+            donation.RequestedAt,
+            donation.ProcessedAt,
+            donation.CreatedAt));
+
+        return Result<IEnumerable<DonationResponse>>.Success(response);
+    }
+
     public async Task<Result<CreateDonationResponse>> RequestDonationAsync(
         CreateDonationRequest request,
         Guid donorUserId,

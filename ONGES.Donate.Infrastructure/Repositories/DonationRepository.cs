@@ -10,6 +10,12 @@ public sealed class DonationRepository(DonateDbContext context) : IDonationRepos
     public Task<bool> ExistsAsync(Guid donationId, CancellationToken cancellationToken = default)
         => context.Donations.AnyAsync(donation => donation.Id == donationId, cancellationToken);
 
+    public async Task<IEnumerable<DonationEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await context.Donations
+            .AsNoTracking()
+            .OrderByDescending(donation => donation.CreatedAt)
+            .ToListAsync(cancellationToken);
+
     public async Task AddAsync(DonationEntity donation, CancellationToken cancellationToken = default)
         => await context.Donations.AddAsync(donation, cancellationToken);
 

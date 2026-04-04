@@ -6,6 +6,8 @@ namespace ONGES.Donate.Application.Interfaces;
 
 public interface IDonationService
 {
+    Task<Result<IEnumerable<DonationResponse>>> GetAllAsync(CancellationToken cancellationToken = default);
+
     Task<Result<CreateDonationResponse>> RequestDonationAsync(
         CreateDonationRequest request,
         Guid donorUserId,

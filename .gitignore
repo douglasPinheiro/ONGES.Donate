@@ -54,3 +54,5 @@ TestResult.xml
 nunit-*.xml
 
 .vs/
+.appsettings.Development.json
+.appsettings.Release.json

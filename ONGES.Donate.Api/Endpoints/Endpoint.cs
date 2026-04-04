@@ -10,7 +10,8 @@ public static class Endpoint
 
         endpoints.MapGroup("v1/donations")
             .WithTags("Doacoes")
-            .MapEndpoint<Create>();
+            .MapEndpoint<Create>()
+            .MapEndpoint<GetAll>();
     }
 
     private static IEndpointRouteBuilder MapEndpoint<TEndpoint>(this IEndpointRouteBuilder app)
