@@ -2,6 +2,7 @@ using Moq;
 using ONGES.Donate.Application.DTOs.Messages;
 using ONGES.Donate.Application.Interfaces;
 using ONGES.Donate.Application.Services;
+using ONGES.Contracts.DTOs;
 
 namespace ONGES.Donate.Test.Application;
 
@@ -26,7 +27,7 @@ public sealed class DonationMessageProcessorTests
         Assert.True(result.IsSuccess);
         repository.Verify(current => current.AddAsync(It.IsAny<ONGES.Donate.Domain.Entities.DonationEntity>(), It.IsAny<CancellationToken>()), Times.Never);
         repository.Verify(current => current.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        publisher.Verify(current => current.PublishAsync(It.IsAny<UpdateCampaignDonationMessage>(), It.IsAny<CancellationToken>()), Times.Never);
+        publisher.Verify(current => current.PublishAsync(It.IsAny<DonationMessage>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -67,7 +68,7 @@ public sealed class DonationMessageProcessorTests
 
         publisher.Verify(
             current => current.PublishAsync(
-                It.Is<UpdateCampaignDonationMessage>(message =>
+                It.Is<DonationMessage>(message =>
                     message.CampaignId == campaignId &&
                     message.Amount == 125),
                 It.IsAny<CancellationToken>()),

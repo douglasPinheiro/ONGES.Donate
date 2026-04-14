@@ -24,6 +24,7 @@
     <ProjectReference Include="..\ONGES.Donate.Application\ONGES.Donate.Application.csproj" />
     <ProjectReference Include="..\ONGES.Donate.Domain\ONGES.Donate.Domain.csproj" />
     <ProjectReference Include="..\ONGES.Donate.Infrastructure\ONGES.Donate.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\ONGES.Contracts\ONGES.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

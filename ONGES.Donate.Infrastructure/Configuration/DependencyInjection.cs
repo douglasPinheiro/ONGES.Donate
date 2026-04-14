@@ -1,5 +1,5 @@
-using Azure.Messaging.ServiceBus;
 using FluentValidation;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,9 +17,13 @@ namespace ONGES.Donate.Infrastructure.Configuration;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        Action<IBusRegistrationConfigurator>? configureMassTransitRegistration = null,
+        Action<IBusRegistrationContext, IRabbitMqBusFactoryConfigurator>? configureRabbitMq = null)
     {
-        services.Configure<ServiceBusOptions>(configuration.GetSection(ServiceBusOptions.SectionName));
+        services.Configure<MessageBrokerOptions>(configuration.GetSection(MessageBrokerOptions.SectionName));
         services.Configure<CampaignApiOptions>(configuration.GetSection(CampaignApiOptions.SectionName));
 
         services.AddDbContext<DonateDbContext>(options =>
@@ -30,10 +34,27 @@ public static class DependencyInjection
         services.AddScoped<IDonationMessageProcessor, DonationMessageProcessor>();
         services.AddScoped<IValidator<CreateDonationRequest>, CreateDonationRequestValidator>();
 
-        services.AddSingleton(serviceProvider =>
+        services.AddMassTransit(busConfigurator =>
         {
-            var options = serviceProvider.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
-            return new ServiceBusClient(options.ConnectionString);
+            busConfigurator.SetKebabCaseEndpointNameFormatter();
+            configureMassTransitRegistration?.Invoke(busConfigurator);
+
+            busConfigurator.UsingRabbitMq((context, cfg) =>
+            {
+                var options = context.GetRequiredService<IOptions<MessageBrokerOptions>>().Value;
+                cfg.Host(options.Host, options.Port, options.VirtualHost, hostConfigurator =>
+                {
+                    hostConfigurator.Username(options.Username);
+                    hostConfigurator.Password(options.Password);
+                });
+                cfg.UseRawJsonSerializer();
+                cfg.UseRawJsonDeserializer();
+
+                configureRabbitMq?.Invoke(context, cfg);
+
+                if (configureRabbitMq is null)
+                    cfg.ConfigureEndpoints(context);
+            });
         });
 
         services.AddScoped<IInternalDonationMessagePublisher, InternalDonationMessagePublisher>();

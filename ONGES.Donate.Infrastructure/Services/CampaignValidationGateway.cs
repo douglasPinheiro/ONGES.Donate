@@ -1,28 +1,25 @@
-using System.Net.Http.Json;
-using System.Text.Json.Serialization;
+using ONGES.Donate.Application.DTOs.Responses;
 using ONGES.Donate.Application.Interfaces;
+using System.Net.Http.Json;
 
 namespace ONGES.Donate.Infrastructure.Services;
 
 public sealed class CampaignValidationGateway(HttpClient httpClient) : ICampaignValidationGateway
 {
-    public async Task<bool> CampaignExistsAsync(Guid campaignId, CancellationToken cancellationToken = default)
+    public async Task<bool> CampaignExistsAsync(Guid campaignId, CancellationToken ct = default)
     {
-        using var response = await httpClient.GetAsync($"/v1/campaigns/{campaignId}", cancellationToken);
+        using var response = await httpClient.GetAsync($"/api/v1/campaigns/internal/{campaignId}", ct);
         return response.IsSuccessStatusCode;
     }
 
-    public async Task<bool> IsCampaignActiveAsync(Guid campaignId, CancellationToken cancellationToken = default)
+    public async Task<bool> IsCampaignActiveAsync(Guid campaignId, CancellationToken ct = default)
     {
-        using var response = await httpClient.GetAsync($"/v1/campaigns/{campaignId}", cancellationToken);
+        using var response = await httpClient.GetAsync($"/api/v1/campaigns/internal/{campaignId}", ct);
 
         if (!response.IsSuccessStatusCode)
             return false;
 
-        var campaign = await response.Content.ReadFromJsonAsync<CampaignResponse>(cancellationToken: cancellationToken);
-
-        return string.Equals(campaign?.Status, "Active", StringComparison.OrdinalIgnoreCase);
+        var campaign = await response.Content.ReadFromJsonAsync<CampaignValidationResponse>(ct);
+        return campaign?.Status == "Active";
     }
-
-    private sealed record CampaignResponse([property: JsonPropertyName("status")] string Status);
 }

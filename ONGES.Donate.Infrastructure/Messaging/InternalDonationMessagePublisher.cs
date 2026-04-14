@@ -1,27 +1,23 @@
-using Azure.Messaging.ServiceBus;
+using MassTransit;
 using Microsoft.Extensions.Options;
 using ONGES.Donate.Application.DTOs.Messages;
 using ONGES.Donate.Application.Interfaces;
 using ONGES.Donate.Infrastructure.Configuration;
-using System.Text.Json;
 
 namespace ONGES.Donate.Infrastructure.Messaging;
 
 public sealed class InternalDonationMessagePublisher(
-    ServiceBusClient serviceBusClient,
-    IOptions<ServiceBusOptions> options) : IInternalDonationMessagePublisher
+    ISendEndpointProvider sendEndpointProvider,
+    IOptions<MessageBrokerOptions> options) : IInternalDonationMessagePublisher
 {
     public async Task PublishAsync(DonationRequestedMessage message, CancellationToken cancellationToken = default)
     {
-        var sender = serviceBusClient.CreateSender(options.Value.DonationsTopic);
+        var endpoint = await sendEndpointProvider.GetSendEndpoint(
+            new Uri($"queue:{options.Value.DonationsQueue}"));
 
-        await sender.SendMessageAsync(new ServiceBusMessage(JsonSerializer.Serialize(message))
+        await endpoint.Send(message, context =>
         {
-            Subject = nameof(DonationRequestedMessage),
-            ContentType = "application/json",
-            MessageId = message.DonationId.ToString()
+            context.MessageId = message.DonationId;
         }, cancellationToken);
-
-        await sender.DisposeAsync();
     }
 }

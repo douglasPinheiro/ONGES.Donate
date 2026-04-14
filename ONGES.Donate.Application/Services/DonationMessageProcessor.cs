@@ -2,6 +2,7 @@ using ONGES.Donate.Application.DTOs.Messages;
 using ONGES.Donate.Application.Interfaces;
 using ONGES.Donate.Domain.Entities;
 using ONGES.Donate.Domain.Shared;
+using ONGES.Contracts.DTOs;
 
 namespace ONGES.Donate.Application.Services;
 
@@ -27,10 +28,12 @@ public sealed class DonationMessageProcessor(
         await donationRepository.SaveChangesAsync(cancellationToken);
 
         await campaignUpdatePublisher.PublishAsync(
-            new UpdateCampaignDonationMessage(
-                message.CampaignId,
-                message.Amount,
-                donation.ProcessedAt ?? DateTime.UtcNow),
+            new DonationMessage
+            {
+                CampaignId = message.CampaignId,
+                Amount = message.Amount,
+                DonatedAt = donation.ProcessedAt ?? DateTime.UtcNow
+            },
             cancellationToken);
 
         return Result.Success();

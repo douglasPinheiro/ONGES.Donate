@@ -1,32 +1,23 @@
-using Azure.Messaging.ServiceBus;
+using MassTransit;
 using Microsoft.Extensions.Options;
-using ONGES.Donate.Application.DTOs.Messages;
 using ONGES.Donate.Application.Interfaces;
 using ONGES.Donate.Infrastructure.Configuration;
-using System.Text.Json;
+using ONGES.Contracts.DTOs;
 
 namespace ONGES.Donate.Infrastructure.Messaging;
 
 public sealed class CampaignUpdatePublisher(
-    ServiceBusClient serviceBusClient,
-    IOptions<ServiceBusOptions> options) : ICampaignUpdatePublisher
+    ISendEndpointProvider sendEndpointProvider,
+    IOptions<MessageBrokerOptions> options) : ICampaignUpdatePublisher
 {
-    public async Task PublishAsync(UpdateCampaignDonationMessage message, CancellationToken cancellationToken = default)
+    public async Task PublishAsync(DonationMessage message, CancellationToken cancellationToken = default)
     {
-        var sender = serviceBusClient.CreateSender(options.Value.CampaignUpdatesEntity);
+        var endpoint = await sendEndpointProvider.GetSendEndpoint(
+            new Uri($"queue:{options.Value.CampaignUpdatesQueue}"));
 
-        await sender.SendMessageAsync(new ServiceBusMessage(JsonSerializer.Serialize(new
+        await endpoint.Send(message, context =>
         {
-            CampaignId = message.CampaignId,
-            Amount = message.Amount,
-            DonatedAt = message.DonatedAt
-        }))
-        {
-            Subject = nameof(UpdateCampaignDonationMessage),
-            ContentType = "application/json",
-            MessageId = $"{message.CampaignId:N}-{message.DonatedAt:O}"
+            context.MessageId = NewId.NextGuid();
         }, cancellationToken);
-
-        await sender.DisposeAsync();
     }
 }
