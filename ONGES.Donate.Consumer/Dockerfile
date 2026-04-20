@@ -5,7 +5,6 @@ COPY ONGES.Donate/ONGES.Donate.Consumer/ONGES.Donate.Consumer.csproj ONGES.Donat
 COPY ONGES.Donate/ONGES.Donate.Application/ONGES.Donate.Application.csproj ONGES.Donate/ONGES.Donate.Application/
 COPY ONGES.Donate/ONGES.Donate.Infrastructure/ONGES.Donate.Infrastructure.csproj ONGES.Donate/ONGES.Donate.Infrastructure/
 COPY ONGES.Donate/ONGES.Donate.Domain/ONGES.Donate.Domain.csproj ONGES.Donate/ONGES.Donate.Domain/
-COPY ONGES.Contracts/ONGES.Contracts.csproj ONGES.Contracts/
 
 RUN dotnet restore "ONGES.Donate/ONGES.Donate.Consumer/ONGES.Donate.Consumer.csproj"
 
