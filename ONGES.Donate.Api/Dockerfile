@@ -1,10 +1,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ONGES.Donate/ONGES.Donate.Api/ONGES.Donate.Api.csproj ONGES.Donate/ONGES.Donate.Api/
-COPY ONGES.Donate/ONGES.Donate.Application/ONGES.Donate.Application.csproj ONGES.Donate/ONGES.Donate.Application/
-COPY ONGES.Donate/ONGES.Donate.Infrastructure/ONGES.Donate.Infrastructure.csproj ONGES.Donate/ONGES.Donate.Infrastructure/
-COPY ONGES.Donate/ONGES.Donate.Domain/ONGES.Donate.Domain.csproj ONGES.Donate/ONGES.Donate.Domain/
+COPY ONGES.Donate.Api/ONGES.Donate.Api.csproj ONGES.Donate.Api/
+COPY ONGES.Donate.Application/ONGES.Donate.Application.csproj ONGES.Donate.Application/
+COPY ONGES.Donate.Infrastructure/ONGES.Donate.Infrastructure.csproj ONGES.Donate.Infrastructure/
+COPY ONGES.Donate.Domain/ONGES.Donate.Domain.csproj ONGES.Donate.Domain/
 
 RUN dotnet restore "ONGES.Donate/ONGES.Donate.Api/ONGES.Donate.Api.csproj"
 
