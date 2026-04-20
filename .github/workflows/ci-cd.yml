@@ -52,7 +52,8 @@ jobs:
       - name: Build and push API
         uses: docker/build-push-action@v6
         with:
-          context: ./ONGES.Donate.Api
+          context: .
+          file: ./ONGES.Donate.Api/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_API_NAME }}:latest
@@ -63,7 +64,8 @@ jobs:
       - name: Build and push Consumer
         uses: docker/build-push-action@v6
         with:
-          context: ./ONGES.Donate.Consumer
+          context: .
+          file: ./ONGES.Donate.Consumer/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_CONSUMER_NAME }}:latest
