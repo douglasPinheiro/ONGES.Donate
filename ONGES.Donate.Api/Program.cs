@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using ONGES.Donate.Api.Endpoints;
 using ONGES.Donate.Infrastructure.Configuration;
+using Prometheus;
 
 namespace ONGES.Donate.Api;
 
@@ -68,9 +69,11 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseHttpMetrics();
         app.UseAuthentication();
         app.UseAuthorization();
 
+        app.MapMetrics();
         app.MapEndpoints();
 
         app.Run();
