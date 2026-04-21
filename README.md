@@ -1,20 +1,20 @@
 # ONGES.Donate
 
-Microservico responsavel pelo recebimento e processamento de doacoes da plataforma ONGES.
+Microserviço responsável pelo recebimento e processamento de doações da plataforma ONGES.
 
-O projeto foi estruturado no mesmo padrao dos repositorios `ONGES` e `ONGES.Users.Api`, com separacao por camadas e um `Consumer` dedicado para processamento assincrono.
+O projeto foi estruturado no mesmo padrão dos repositórios `ONGES` e `ONGES.Users.Api`, com separação por camadas e um `Consumer` dedicado ao processamento assíncrono.
 
-## Visao Geral
+## Visão Geral
 
 Fluxo principal:
 
-1. um usuario autenticado envia uma doacao para a API
+1. um usuário autenticado envia uma doação para a API
 2. a API valida os dados recebidos
 3. a API verifica se a campanha existe
-4. a API verifica se a campanha esta ativa
+4. a API verifica se a campanha está ativa
 5. a API publica uma mensagem interna para processamento
 6. o `Consumer` consome essa mensagem
-7. o `Consumer` persiste a doacao no banco
+7. o `Consumer` persiste a doação no banco
 8. o `Consumer` publica uma mensagem para o `ONGES (Campaign)` atualizar o valor arrecadado
 
 Mensagem publicada para o `ONGES (Campaign)`:
@@ -27,9 +27,9 @@ Mensagem publicada para o `ONGES (Campaign)`:
 }
 ```
 
-## Estrutura da Solucao
+## Estrutura da Solução
 
-O repositorio contem os seguintes projetos:
+O repositório contém os seguintes projetos:
 
 - `ONGES.Donate.Api`
 - `ONGES.Donate.Application`
@@ -40,12 +40,12 @@ O repositorio contem os seguintes projetos:
 
 Responsabilidade de cada camada:
 
-- `Api`: endpoint HTTP, autenticacao JWT e exposicao da API
-- `Application`: DTOs, interfaces e implementacao dos services/casos de uso
-- `Domain`: entidades, enums, regras de dominio e resultados
-- `Infrastructure`: persistencia, repositorios, mensageria e integracoes tecnicas
-- `Consumer`: processamento assincrono das mensagens internas
-- `Test`: testes unitarios da solucao
+- `Api`: endpoint HTTP, autenticação JWT e exposição da API
+- `Application`: DTOs, interfaces e implementação de serviços/casos de uso
+- `Domain`: entidades, enums, regras de domínio e resultados
+- `Infrastructure`: persistência, repositórios, mensageria e integrações técnicas
+- `Consumer`: processamento assíncrono das mensagens internas
+- `Test`: testes unitários da solução
 
 ## Tecnologias
 
@@ -65,10 +65,10 @@ Rota:
 POST /v1/donations
 ```
 
-Autenticacao:
+Autenticação:
 
-- requer JWT valido
-- qualquer usuario autenticado pode doar
+- requer JWT válido
+- qualquer usuário autenticado pode doar
 
 Payload:
 
@@ -81,15 +81,15 @@ Payload:
 
 Comportamento esperado:
 
-- retorna erro se a campanha nao existir
-- retorna erro se a campanha nao estiver ativa
-- retorna `202 Accepted` quando a doacao for recebida para processamento assincrono
+- retorna erro se a campanha não existir
+- retorna erro se a campanha não estiver ativa
+- retorna `202 Accepted` quando a doação for recebida para processamento assíncrono
 
-## Configuracao
+## Configuração
 
 ### Banco de dados local
 
-O projeto esta configurado para desenvolvimento local com SQL Server em Docker.
+O projeto está configurado para desenvolvimento local com SQL Server em Docker.
 
 Connection string usada atualmente:
 
@@ -99,38 +99,38 @@ Server=localhost,1433;Database=db-onges-donate-dev;User Id=sa;Password=SenhaFort
 
 ### JWT
 
-A API espera os seguintes itens de configuracao:
+A API espera os seguintes itens de configuração:
 
 - `Jwt:Issuer`
 - `Jwt:Audience`
 - `Jwt:Key`
 
-### Integracao com campanhas
+### Integração com campanhas
 
 A API e o consumer utilizam:
 
 - `CampaignApi:BaseUrl`
 
-Essa configuracao e usada para consultar se a campanha existe e se esta ativa.
+Essa configuração é usada para consultar se a campanha existe e se está ativa.
 
 ### Service Bus
 
-Configuracoes esperadas:
+Configurações esperadas:
 
 - `ServiceBus:ConnectionString`
 - `ServiceBus:DonationsTopic`
 - `ServiceBus:DonationsSubscription`
 - `ServiceBus:CampaignUpdatesEntity`
 
-Valores padrao definidos no projeto:
+Valores padrão definidos no projeto:
 
-- topico interno: `donates-topic`
+- tópico interno: `donates-topic`
 - subscription: `donate-api-sub`
-- destino da mensagem de atualizacao de campanha: `campaign-donations`
+- destino da mensagem de atualização de campanha: `campaign-donations`
 
 ## Executando Localmente
 
-### 1. Restaurar dependencias
+### 1. Restaurar dependências
 
 ```powershell
 dotnet restore .\ONGES.Donate.slnx
@@ -152,7 +152,7 @@ dotnet run --project .\ONGES.Donate.Consumer\ONGES.Donate.Consumer.csproj
 
 ## Executando com Docker Compose
 
-O repositorio possui um `docker-compose.yml` para subir:
+O repositório possui um `docker-compose.yml` para subir:
 
 - `ONGES.Donate.Api`
 - `ONGES.Donate.Consumer`
@@ -172,7 +172,7 @@ http://localhost:8080
 
 ## Dockerfiles
 
-Arquivos disponiveis:
+Arquivos disponíveis:
 
 - [Dockerfile](ONGES.Donate.Api/Dockerfile)
 - [Dockerfile](ONGES.Donate.Consumer/Dockerfile)
@@ -189,16 +189,16 @@ Para executar os testes:
 dotnet test .\ONGES.Donate.Test\ONGES.Donate.Test.csproj
 ```
 
-## Observacoes Importantes
+## Observações Importantes
 
 - o projeto foi desenhado para manter `services` na camada `Application`
-- a `Infrastructure` concentra persistencia, mensageria e integracoes tecnicas
-- a doacao nao e persistida diretamente pela API
-- a persistencia final acontece no `Consumer`
+- a `Infrastructure` concentra persistência, mensageria e integrações técnicas
+- a doação não é persistida diretamente pela API
+- a persistência final acontece no `Consumer`
 
-## Proximos Passos Recomendados
+## Próximos Passos Recomendados
 
 - criar migrations do `DonateDbContext`
-- definir contrato final do destino `campaign-donations` com o servico `ONGES`
+- definir contrato final do destino `campaign-donations` com o serviço `ONGES`
 - adicionar tratamento mais robusto para falhas e retry de mensagens
-- adicionar testes de integracao da API e do consumer
+- adicionar testes de integração da API e do consumer
